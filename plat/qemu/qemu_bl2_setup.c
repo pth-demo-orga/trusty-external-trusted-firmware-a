@@ -47,6 +47,154 @@ static void security_setup(void)
 	 */
 }
 
+#ifdef SPD_trusty
+
+#define GIC_SPI 0
+#define GIC_PPI 1
+
+static int spd_add_dt_node(void *fdt)
+{
+	int offs, trusty_offs, root_offs;
+	int gic, ipi;
+	int len;
+	const uint32_t *prop;
+
+	if (fdt_path_offset(fdt, "/trusty") >= 0) {
+		WARN("Trusty Device Tree node already exists!\n");
+		return 0;
+	}
+
+	offs = fdt_node_offset_by_compatible(fdt, -1, "arm,cortex-a15-gic");
+	if (offs < 0)
+		return -1;
+	gic = fdt_get_phandle(fdt, offs);
+	if (!gic) {
+		WARN("Failed to get gic phandle\n");
+		return -1;
+	}
+	INFO("Found gic phandle 0x%x\n", gic);
+
+	offs = fdt_path_offset(fdt, "/");
+	if (offs < 0)
+		return -1;
+	root_offs = offs;
+
+	offs = fdt_add_subnode(fdt, offs, "interrupt-controller");
+	if (offs < 0)
+		return -1;
+	ipi = fdt_get_max_phandle(fdt) + 1;
+	if (fdt_setprop_u32(fdt, offs, "phandle", 1))
+		return -1;
+	INFO("Found ipi phandle 0x%x\n", ipi);
+
+	ipi = fdt_get_phandle(fdt, offs);
+	if (!ipi) {
+		WARN("Failed to get ipi phandle\n");
+		return -1;
+	}
+
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,CustomIPI"))
+		return -1;
+	if (fdt_setprop_u32(fdt, offs, "#interrupt-cells", 1))
+		return -1;
+	if (fdt_setprop_u32(fdt, offs, "interrupt-controller", 0))
+		return -1;
+
+	offs = fdt_add_subnode(fdt, root_offs, "trusty");
+	if (offs < 0)
+		return -1;
+	trusty_offs = offs;
+
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-smc-v1"))
+		return -1;
+	if (fdt_setprop_u32(fdt, offs, "ranges", 0))
+		return -1;
+	if (fdt_setprop_u32(fdt, offs, "#address-cells", 2))
+		return -1;
+	if (fdt_setprop_u32(fdt, offs, "#size-cells", 2))
+		return -1;
+
+	offs = fdt_add_subnode(fdt, trusty_offs, "irq");
+	if (offs < 0)
+		return -1;
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-irq-v1"))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", ipi))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 0))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", gic))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 1))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", GIC_PPI))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 0))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", gic))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 1))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", GIC_SPI))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 4))
+		return -1;
+
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 0))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 15))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 0))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 16))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 31))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 1))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 32))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 63))
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 2))
+		return -1;
+
+	offs = fdt_add_subnode(fdt, trusty_offs, "log");
+	if (offs < 0)
+		return -1;
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-log-v1"))
+		return -1;
+
+	offs = fdt_add_subnode(fdt, trusty_offs, "virtio");
+	if (offs < 0)
+		return -1;
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-virtio-v1"))
+		return -1;
+
+	offs = fdt_node_offset_by_compatible(fdt, -1, "arm,armv8-timer");
+	if (offs < 0)
+		offs = fdt_node_offset_by_compatible(fdt, -1, "arm,armv7-timer");
+	if (offs < 0)
+		return -1;
+
+	prop = fdt_getprop(fdt, offs, "interrupts", &len);
+	if (fdt_setprop_inplace_namelen_partial(fdt, offs, "interrupts",
+	                                        strlen("interrupts"), 0,
+	                                        prop + len / 4 / 2, len / 4))
+		return -1;
+
+	return 0;
+}
+
+#else
+
+static int spd_add_dt_node(void *fdt)
+{
+	return 0
+}
+
+#endif
+
 static void update_dt(void)
 {
 	int ret;
@@ -65,6 +213,11 @@ static void update_dt(void)
 
 	if (dt_add_psci_cpu_enable_methods(fdt)) {
 		ERROR("Failed to add PSCI cpu enable methods in Device Tree\n");
+		return;
+	}
+
+	if (spd_add_dt_node(fdt)) {
+		ERROR("Failed to add SPD Device Tree node\n");
 		return;
 	}
 
