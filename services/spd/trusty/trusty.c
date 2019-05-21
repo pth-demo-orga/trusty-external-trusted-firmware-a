@@ -417,12 +417,14 @@ static int32_t trusty_setup(void)
 		return -1;
 	}
 
+#ifdef LATE_MAPPED_BL32
 	/* memmap first page of trusty's code memory before peeking */
 	ret = mmap_add_dynamic_region(ep_info->pc, /* PA */
 			ep_info->pc, /* VA */
 			PAGE_SIZE, /* size */
 			MT_SECURE | MT_RW_DATA); /* attrs */
 	assert(ret == 0);
+#endif
 
 	/* peek into trusty's code to see if we have a 32-bit or 64-bit image */
 	instr = *(uint32_t *)ep_info->pc;
@@ -437,8 +439,10 @@ static int32_t trusty_setup(void)
 		return -1;
 	}
 
+#ifdef LATE_MAPPED_BL32
 	/* unmap trusty's memory page */
 	(void)mmap_remove_dynamic_region(ep_info->pc, PAGE_SIZE);
+#endif
 
 	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
 	if (!aarch32)
