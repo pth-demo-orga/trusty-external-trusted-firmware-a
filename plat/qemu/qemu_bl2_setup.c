@@ -129,7 +129,7 @@ static int spd_add_dt_node(void *fdt)
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", GIC_PPI))
 		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 0))
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 4))
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", gic))
 		return -1;
