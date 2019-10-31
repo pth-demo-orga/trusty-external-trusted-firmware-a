@@ -8,7 +8,6 @@ ARM_CORTEX_A7		:=	yes
 ARM_WITH_NEON		:=	yes
 BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
-MULTI_CONSOLE_API	:=	1
 
 STM32_TF_VERSION	?=	0
 
@@ -49,29 +48,32 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch32/cortex_a7.S
 
-PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
-				drivers/arm/tzc/tzc400.c				\
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/bsec/bsec.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
 				drivers/st/clk/stm32mp1_clk.c				\
-				drivers/st/clk/stm32mp1_clkfunc.c			\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/i2c/stm32_i2c.c				\
+				drivers/st/iwdg/stm32_iwdg.c				\
 				drivers/st/pmic/stm32mp_pmic.c				\
 				drivers/st/pmic/stpmic1.c				\
 				drivers/st/reset/stm32mp1_reset.c			\
 				plat/st/common/stm32mp_dt.c				\
 				plat/st/stm32mp1/stm32mp1_context.c			\
+				plat/st/stm32mp1/stm32mp1_dbgmcu.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
-				plat/st/stm32mp1/stm32mp1_security.c
+				plat/st/stm32mp1/stm32mp1_security.c			\
+				plat/st/stm32mp1/stm32mp1_syscfg.c
 
 BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_dummy.c					\
 				drivers/io/io_storage.c					\
+				drivers/st/crypto/stm32_hash.c				\
 				drivers/st/io/io_stm32image.c				\
+				plat/st/common/stm32mp_auth.c				\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
@@ -102,6 +104,8 @@ STM32_TF_LINKERFILE	:=	$(STM32_TF_STM32:.stm32=.ld)
 STM32_TF_ELF		:=	$(STM32_TF_STM32:.stm32=.elf)
 STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${DTB_FILE_NAME}
 STM32_TF_OBJS		:=	${BUILD_PLAT}/stm32mp1.o
+
+BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 
 # Variables for use with stm32image
 STM32IMAGEPATH		?= tools/stm32image

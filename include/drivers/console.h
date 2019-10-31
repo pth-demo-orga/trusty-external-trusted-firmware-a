@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,14 +21,15 @@
 #define CONSOLE_FLAG_CRASH		(U(1) << 2)
 /* Bits 3 to 7 reserved for additional scopes in future expansion. */
 #define CONSOLE_FLAG_SCOPE_MASK		((U(1) << 8) - 1)
-/* Bits 8 to 31 reserved for non-scope use in future expansion. */
+/* Bits 8 to 31 for non-scope use. */
+#define CONSOLE_FLAG_TRANSLATE_CRLF	(U(1) << 8)
 
 /* Returned by getc callbacks when receive FIFO is empty. */
 #define ERROR_NO_PENDING_CHAR		(-1)
 /* Returned by console_xxx() if no registered console implements xxx. */
 #define ERROR_NO_VALID_CONSOLE		(-128)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -75,13 +76,6 @@ int console_getc(void);
 /* Flush all consoles registered for the current state. */
 int console_flush(void);
 
-#if !MULTI_CONSOLE_API
-/* REMOVED on AArch64 -- use console_<driver>_register() instead! */
-int console_init(uintptr_t base_addr,
-		 unsigned int uart_clk, unsigned int baud_rate);
-void console_uninit(void);
-#endif
-
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CONSOLE_H */

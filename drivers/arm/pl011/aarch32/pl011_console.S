@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,14 +8,6 @@
 #include <assert_macros.S>
 #include <console_macros.S>
 #include <drivers/arm/pl011.h>
-
-#if !MULTI_CONSOLE_API
-/*
- * Pull in generic functions to provide backwards compatibility for
- * platform makefiles
- */
-#include "../../../console/aarch32/console.S"
-#endif
 
 	/*
 	 * "core" functions are low-level implementations that don't require
@@ -65,7 +57,7 @@ func console_pl011_core_init
 #if (ARM_ARCH_MAJOR == 7) && !defined(ARMV7_SUPPORTS_VIRTUALIZATION)
 	push	{r0,r3}
 	softudiv	r0,r1,r2,r3
-	mov	r1, r0
+	mov	r2, r0
 	pop	{r0,r3}
 #else
 	udiv	r2, r1, r2
@@ -94,7 +86,6 @@ core_init_fail:
 	bx	lr
 endfunc console_pl011_core_init
 
-#if MULTI_CONSOLE_API
 	.globl console_pl011_register
 
 	/* -------------------------------------------------------
@@ -130,16 +121,6 @@ func console_pl011_register
 register_fail:
 	pop	{r4, pc}
 endfunc console_pl011_register
-#else
-	.globl console_core_init
-	.globl console_core_putc
-	.globl console_core_getc
-	.globl console_core_flush
-	.equ console_core_init, console_pl011_core_init
-	.equ console_core_putc, console_pl011_core_putc
-	.equ console_core_getc, console_pl011_core_getc
-	.equ console_core_flush, console_pl011_core_flush
-#endif
 
 	/* --------------------------------------------------------
 	 * int console_core_putc(int c, uintptr_t base_addr)

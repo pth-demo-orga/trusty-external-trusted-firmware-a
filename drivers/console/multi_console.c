@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#if MULTI_CONSOLE_API
-
 #include <assert.h>
 
 #include <drivers/console.h>
@@ -72,6 +70,20 @@ void console_set_scope(console_t *console, unsigned int scope)
 	console->flags = (console->flags & ~CONSOLE_FLAG_SCOPE_MASK) | scope;
 }
 
+static int do_putc(int c, console_t *console)
+{
+	int ret;
+
+	if ((c == '\n') &&
+	    ((console->flags & CONSOLE_FLAG_TRANSLATE_CRLF) != 0)) {
+		ret = console->putc('\r', console);
+		if (ret < 0)
+			return ret;
+	}
+
+	return console->putc(c, console);
+}
+
 int console_putc(int c)
 {
 	int err = ERROR_NO_VALID_CONSOLE;
@@ -79,7 +91,7 @@ int console_putc(int c)
 
 	for (console = console_list; console != NULL; console = console->next)
 		if ((console->flags & console_state) && console->putc) {
-			int ret = console->putc(c, console);
+			int ret = do_putc(c, console);
 			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err))
 				err = ret;
 		}
@@ -121,5 +133,3 @@ int console_flush(void)
 
 	return err;
 }
-
-#endif	/* MULTI_CONSOLE_API */

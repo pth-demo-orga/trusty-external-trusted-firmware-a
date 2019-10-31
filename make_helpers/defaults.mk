@@ -33,6 +33,9 @@ BL2_AT_EL3			:= 0
 # when BL2_AT_EL3 is 1.
 BL2_IN_XIP_MEM			:= 0
 
+# Do dcache invalidate upon BL2 entry at EL3
+BL2_INV_DCACHE			:= 1
+
 # Select the branch protection features to use.
 BRANCH_PROTECTION		:= 0
 
@@ -136,10 +139,6 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
-# Enable use of the console API allowing multiple consoles to be registered
-# at the same time.
-MULTI_CONSOLE_API		:= 0
-
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
@@ -218,6 +217,11 @@ ifeq (${ARCH},aarch32)
     override ENABLE_SPE_FOR_LOWER_ELS := 0
 endif
 
+# Include Memory Tagging Extension registers in cpu context. This must be set
+# to 1 if the platform wants to use this feature in the Secure world and MTE is
+# enabled at ELX.
+CTX_INCLUDE_MTE_REGS := 0
+
 ENABLE_AMU			:= 0
 
 # By default, enable Scalable Vector Extension if implemented for Non-secure
@@ -228,3 +232,10 @@ ifneq (${ARCH},aarch32)
 else
     override ENABLE_SVE_FOR_NS	:= 0
 endif
+
+SANITIZE_UB := off
+
+# For ARMv8.1 (AArch64) platforms, enabling this option selects the spinlock
+# implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
+# Default: disabled
+USE_SPINLOCK_CAS := 0

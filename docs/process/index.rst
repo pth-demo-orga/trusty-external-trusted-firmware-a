@@ -6,9 +6,9 @@ Processes & Policies
    :caption: Contents
    :numbered:
 
-   release-information
    security
    platform-compatibility-policy
    coding-guidelines
    contributing
    faq
+   security-hardening

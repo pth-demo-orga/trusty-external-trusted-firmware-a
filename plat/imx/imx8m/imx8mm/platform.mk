@@ -20,6 +20,8 @@ IMX_GIC_SOURCES		:=	drivers/arm/gic/v3/gicv3_helpers.c	\
 BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/gpc_common.c			\
 				plat/imx/imx8m/imx_aipstz.c			\
+				plat/imx/imx8m/imx_rdc.c			\
+				plat/imx/imx8m/imx8m_caam.c			\
 				plat/imx/imx8m/imx8m_psci_common.c		\
 				plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c	\
 				plat/imx/imx8m/imx8mm/imx8mm_psci.c		\
@@ -39,7 +41,6 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 USE_COHERENT_MEM	:=	1
 RESET_TO_BL31		:=	1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
-MULTI_CONSOLE_API	:=	1
 
 ERRATA_A53_835769	:=	1
 ERRATA_A53_843419	:=	1

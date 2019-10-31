@@ -23,8 +23,8 @@ include:
 
 - ``**WARNING: Use of volatile is usually wrong``: see
   `Why the “volatile” type class should not be used`_ . Although this document
-  contains some very useful information, there are several legimate uses of the
-  volatile keyword within the TF codebase.
+  contains some very useful information, there are several legitimate uses of
+  the volatile keyword within the TF codebase.
 
 Headers and inclusion
 ---------------------
@@ -262,6 +262,41 @@ The Linux coding standards also discourage new typedefs and checkpatch emits
 a warning for this.
 
 Existing typedefs will be retained for compatibility.
+
+Libc functions that are banned or to be used with caution
+---------------------------------------------------------
+
+Below is a list of functions that present security risks and either must not be
+used (Banned) or are discouraged from use and must be used with care (Caution).
+
++------------------------+-----------+--------------------------------------+
+|    libc function       | Status    | Comments                             |
++========================+===========+======================================+
+| ``strcpy, wcscpy``,    | Banned    | use strlcpy instead                  |
+| ``strncpy``            |           |                                      |
++------------------------+-----------+--------------------------------------+
+| ``strcat, wcscat``,    | Banned    | use strlcat instead                  |
+| ``strncat``            |           |                                      |
++------------------------+-----------+--------------------------------------+
+| ``sprintf, vsprintf``  | Banned    | use snprintf, vsnprintf              |
+|                        |           | instead                              |
++------------------------+-----------+--------------------------------------+
+| ``snprintf``           | Caution   | ensure result fits in buffer         |
+|                        |           | i.e : snprintf(buf,size...) < size   |
++------------------------+-----------+--------------------------------------+
+| ``vsnprintf``          | Caution   | inspect va_list match types          |
+|                        |           | specified in format string           |
++------------------------+-----------+--------------------------------------+
+| ``strtok``             | Banned    | use strtok_r or strsep instead       |
++------------------------+-----------+--------------------------------------+
+| ``strtok_r, strsep``   | Caution   | inspect for terminated input buffer  |
++------------------------+-----------+--------------------------------------+
+| ``ato*``               | Banned    | use equivalent strto* functions      |
++------------------------+-----------+--------------------------------------+
+| ``*toa``               | Banned    | Use snprintf instead                 |
++------------------------+-----------+--------------------------------------+
+
+The `libc` component in the codebase will not add support for the banned APIs.
 
 Error handling and robustness
 -----------------------------
