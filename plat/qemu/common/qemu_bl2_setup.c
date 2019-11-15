@@ -67,6 +67,9 @@ static int spd_add_dt_node(void *fdt)
 
 	offs = fdt_node_offset_by_compatible(fdt, -1, "arm,cortex-a15-gic");
 	if (offs < 0)
+		offs = fdt_node_offset_by_compatible(fdt, -1, "arm,gic-v3");
+
+	if (offs < 0)
 		return -1;
 	gic = fdt_get_phandle(fdt, offs);
 	if (!gic) {
