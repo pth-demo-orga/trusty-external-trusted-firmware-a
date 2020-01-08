@@ -169,6 +169,12 @@ static int spd_add_dt_node(void *fdt)
 	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-log-v1"))
 		return -1;
 
+	offs = fdt_add_subnode(fdt, trusty_offs, "test");
+	if (offs < 0)
+		return -1;
+	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-test-v1"))
+		return -1;
+
 	offs = fdt_add_subnode(fdt, trusty_offs, "virtio");
 	if (offs < 0)
 		return -1;
