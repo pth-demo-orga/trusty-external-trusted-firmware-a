@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+TRUSTY_SPD_WITH_SHARED_MEM ?= 1
+
 SPD_INCLUDES		:=
 
 SPD_SOURCES		:=	services/spd/trusty/trusty.c		\
@@ -11,6 +13,12 @@ SPD_SOURCES		:=	services/spd/trusty/trusty.c		\
 
 ifeq (${TRUSTY_SPD_WITH_GENERIC_SERVICES},1)
 SPD_SOURCES		+=	services/spd/trusty/generic-arm64-smcall.c
+endif
+
+ifeq (${TRUSTY_SPD_WITH_SHARED_MEM},1)
+BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC=1 \
+				-DTRUSTY_SPM=1
+SPD_SOURCES		+=	services/spd/trusty/shared-mem-smcall.c
 endif
 
 # On Tegra, BL2 does not map us into memory before our spd is initialized.
