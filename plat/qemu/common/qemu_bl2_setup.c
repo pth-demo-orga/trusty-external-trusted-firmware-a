@@ -200,7 +200,7 @@ static int spd_add_dt_node(void *fdt)
 
 static int spd_add_dt_node(void *fdt)
 {
-	return 0
+	return 0;
 }
 
 #endif
