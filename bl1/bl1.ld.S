@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@ SECTIONS
     .text . : {
         __TEXT_START__ = .;
         *bl1_entrypoint.o(.text*)
-        *(.text*)
+        *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
@@ -44,7 +44,7 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -65,15 +65,20 @@ SECTIONS
          * No need to pad out the .rodata section to a page boundary. Next is
          * the .data section, which can mapped in ROM with the same memory
          * attributes as the .rodata section.
+         *
+         * Pad out to 16 bytes though as .data section needs to be 16 byte
+         * aligned and lld does not align the LMA to the aligment specified
+         * on the .data section.
          */
         __RODATA_END__ = .;
+         . = ALIGN(16);
     } >ROM
 #else
     ro . : {
         __RO_START__ = .;
         *bl1_entrypoint.o(.text*)
-        *(.text*)
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -92,6 +97,13 @@ SECTIONS
 
         *(.vectors)
         __RO_END__ = .;
+
+        /*
+         * Pad out to 16 bytes as .data section needs to be 16 byte aligned and
+         * lld does not align the LMA to the aligment specified on the .data
+         * section.
+         */
+         . = ALIGN(16);
     } >ROM
 #endif
 
@@ -114,7 +126,7 @@ SECTIONS
      */
     .data . : ALIGN(16) {
         __DATA_RAM_START__ = .;
-        *(.data*)
+        *(SORT_BY_ALIGNMENT(.data*))
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 
@@ -131,7 +143,7 @@ SECTIONS
      */
     .bss : ALIGN(16) {
         __BSS_START__ = .;
-        *(.bss*)
+        *(SORT_BY_ALIGNMENT(.bss*))
         *(COMMON)
         __BSS_END__ = .;
     } >RAM

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,13 +10,13 @@ CSS_ENT_BASE			:=	plat/arm/css/sgi
 
 RAS_EXTENSION			:=	0
 
-ENABLE_SPM			:=	0
-
 SDEI_SUPPORT			:=	0
 
 EL3_EXCEPTION_HANDLING		:=	0
 
 HANDLE_EA_EL3_FIRST		:=	0
+
+CSS_SGI_CHIP_COUNT		:=	1
 
 INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
@@ -53,6 +53,8 @@ ifneq (${RESET_TO_BL31},0)
 endif
 
 $(eval $(call add_define,SGI_PLAT))
+
+$(eval $(call add_define,CSS_SGI_CHIP_COUNT))
 
 override CSS_LOAD_SCP_IMAGES	:=	0
 override NEED_BL2U		:=	no

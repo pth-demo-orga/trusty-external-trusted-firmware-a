@@ -23,8 +23,6 @@ Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
 
-This document should be read in conjunction with the TF-A :ref:`User Guide`.
-
 Please refer to the :ref:`Platform Compatibility Policy` for the policy
 regarding compatibility and deprecation of these porting interfaces.
 
@@ -2001,7 +1999,7 @@ Function : plat_psci_stat_get_residency() [optional]
 
 ::
 
-    Argument : unsigned int, const psci_power_state_t *, int
+    Argument : unsigned int, const psci_power_state_t *, unsigned int
     Return   : u_register_t
 
 This is an optional interface that is is invoked after resuming from a low power
@@ -2387,8 +2385,8 @@ present in the platform. Arm standard platform layer supports both
 `Arm Generic Interrupt Controller version 2.0 (GICv2)`_
 and `3.0 (GICv3)`_. Juno builds the Arm platform layer to use GICv2 and the
 FVP can be configured to use either GICv2 or GICv3 depending on the build flag
-``FVP_USE_GIC_DRIVER`` (See FVP platform specific build options in
-:ref:`User Guide` for more details).
+``FVP_USE_GIC_DRIVER`` (See :ref:`build_options_arm_fvp_platform` for more
+details).
 
 See also: `Interrupt Controller Abstraction APIs`__.
 
@@ -2765,6 +2763,19 @@ build system.
    to ``no``. If any of the options ``EL3_PAYLOAD_BASE`` or ``PRELOADED_BL33_BASE``
    are used, this flag will be set to ``no`` automatically.
 
+Platform include paths
+----------------------
+
+Platforms are allowed to add more include paths to be passed to the compiler.
+The ``PLAT_INCLUDES`` variable is used for this purpose. This is needed in
+particular for the file ``platform_def.h``.
+
+Example:
+
+.. code:: c
+
+  PLAT_INCLUDES  += -Iinclude/plat/myplat/include
+
 C Library
 ---------
 
@@ -2796,10 +2807,10 @@ storage access is only required by BL1 and BL2 phases and performed inside the
 
 It is mandatory to implement at least one storage driver. For the Arm
 development platforms the Firmware Image Package (FIP) driver is provided as
-the default means to load data from storage (see the "Firmware Image Package"
-section in the :ref:`User Guide`). The storage layer is described in the header file
-``include/drivers/io/io_storage.h``. The implementation of the common library
-is in ``drivers/io/io_storage.c`` and the driver files are located in
+the default means to load data from storage (see :ref:`firmware_design_fip`).
+The storage layer is described in the header file
+``include/drivers/io/io_storage.h``. The implementation of the common library is
+in ``drivers/io/io_storage.c`` and the driver files are located in
 ``drivers/io/``.
 
 .. uml:: ../resources/diagrams/plantuml/io_arm_class_diagram.puml
@@ -2846,7 +2857,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html

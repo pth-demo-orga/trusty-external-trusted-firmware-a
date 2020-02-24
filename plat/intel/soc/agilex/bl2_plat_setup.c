@@ -14,20 +14,17 @@
 #include <drivers/synopsys/dw_mmc.h>
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables.h>
-#include <platform_def.h>
-#include <socfpga_private.h>
 
 #include "agilex_clock_manager.h"
-#include "agilex_handoff.h"
-#include "agilex_mailbox.h"
 #include "agilex_memory_controller.h"
 #include "agilex_pinmux.h"
-#include "agilex_private.h"
-#include "agilex_reset_manager.h"
-#include "agilex_system_manager.h"
-
 #include "ccu/ncore_ccu.h"
 #include "qspi/cadence_qspi.h"
+#include "socfpga_handoff.h"
+#include "socfpga_mailbox.h"
+#include "socfpga_private.h"
+#include "socfpga_reset_manager.h"
+#include "socfpga_system_manager.h"
 #include "wdt/watchdog.h"
 
 
@@ -49,7 +46,7 @@ const mmap_region_t agilex_plat_mmap[] = {
 	{0},
 };
 
-boot_source_type boot_source;
+boot_source_type boot_source = BOOT_SOURCE;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 				u_register_t x2, u_register_t x4)
@@ -59,10 +56,9 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	generic_delay_timer_init();
 
-	if (agilex_get_handoff(&reverse_handoff_ptr))
+	if (socfpga_get_handoff(&reverse_handoff_ptr))
 		return;
 	config_pinmux(&reverse_handoff_ptr);
-	boot_source = reverse_handoff_ptr.boot_source;
 	config_clkmgr_handoff(&reverse_handoff_ptr);
 
 	enable_nonsecure_access();
@@ -77,7 +73,10 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	socfpga_delay_timer_init();
 	init_ncore_ccu();
 	init_hard_memory_controller();
-	enable_ns_bridge_access();
+	mailbox_init();
+
+	if (!intel_mailbox_is_fpga_not_ready())
+		socfpga_bridges_enable();
 }
 
 
@@ -109,8 +108,6 @@ void bl2_el3_plat_arch_setup(void)
 
 	info.mmc_dev_type = MMC_IS_SD;
 	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
-
-	mailbox_init();
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:

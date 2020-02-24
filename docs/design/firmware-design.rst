@@ -597,7 +597,7 @@ registered function to initialize BL32 before running BL33. This initialization
 is not necessary for AArch32 SPs.
 
 Details on BL32 initialization and the SPD's role are described in the
-"Secure-EL1 Payloads and Dispatchers" section below.
+:ref:`firmware_design_sel1_spd` section below.
 
 BL33 (Non-trusted Firmware) execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -868,7 +868,7 @@ not all been instantiated in the current implementation.
 
    TF-A provides a Test Secure-EL1 Payload (TSP) and its associated Dispatcher
    (TSPD). Details of SPD design and TSP/TSPD operation are described in the
-   "Secure-EL1 Payloads and Dispatchers" section below.
+   :ref:`firmware_design_sel1_spd` section below.
 
 #. CPU implementation service
 
@@ -978,8 +978,8 @@ manipulation; and with ``flags`` indicating the security state of the caller. Th
 framework finally sets up the execution stack for the handler, and invokes the
 services ``handle()`` function.
 
-On return from the handler the result registers are populated in X0-X3 before
-restoring the stack and CPU state and returning from the original SMC.
+On return from the handler the result registers are populated in X0-X7 as needed
+before restoring the stack and CPU state and returning from the original SMC.
 
 Exception Handling Framework
 ----------------------------
@@ -1500,6 +1500,11 @@ sections then the resulting binary file would contain zero bytes in place of
 this NOBITS section, making the image unnecessarily bigger. Smaller images
 allow faster loading from the FIP to the main memory.
 
+For BL31, a platform can specify an alternate location for NOBITS sections
+(other than immediately following PROGBITS sections) by setting
+``SEPARATE_NOBITS_REGION`` to 1 and defining ``BL31_NOBITS_BASE`` and
+``BL31_NOBITS_LIMIT``.
+
 Linker scripts and symbols
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1875,10 +1880,7 @@ BL image during boot.
                |   MHU    |
     0x04000000 +----------+
 
-Library at ROM
----------------
-
-Please refer to the :ref:`Library at ROM` document.
+.. _firmware_design_fip:
 
 Firmware Image Package (FIP)
 ----------------------------
@@ -2543,7 +2545,7 @@ Architecture Extension-specific code is included in the build. Otherwise, TF-A
 targets the base Armv8.0-A architecture; i.e. as if ``ARM_ARCH_MAJOR`` == 8
 and ``ARM_ARCH_MINOR`` == 0, which are also their respective default values.
 
-See also the *Summary of build options* in :ref:`User Guide`.
+.. seealso:: :ref:`Build Options`
 
 For details on the Architecture Extension and available features, please refer
 to the respective Architecture Extension Supplement.
@@ -2694,13 +2696,13 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 --------------
 
-*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _Arm ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
+.. _Arm ARM: https://developer.arm.com/docs/ddi0487/latest
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 

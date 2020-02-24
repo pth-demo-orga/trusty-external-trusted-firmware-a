@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,7 @@
 						SMCCC_VERSION_MINOR_SHIFT))
 
 #define SMCCC_MAJOR_VERSION U(1)
-#define SMCCC_MINOR_VERSION U(1)
+#define SMCCC_MINOR_VERSION U(2)
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
@@ -41,6 +41,8 @@
 #define FUNCID_NUM_MASK			U(0xffff)
 #define FUNCID_NUM_WIDTH		U(16)
 
+#define GET_SMC_NUM(id)			(((id) >> FUNCID_NUM_SHIFT) & \
+					 FUNCID_NUM_MASK)
 #define GET_SMC_TYPE(id)		(((id) >> FUNCID_TYPE_SHIFT) & \
 					 FUNCID_TYPE_MASK)
 #define GET_SMC_CC(id)			(((id) >> FUNCID_CC_SHIFT) & \
@@ -82,6 +84,12 @@
 #define SMC_OK				ULL(0)
 #define SMC_UNK				-1
 #define SMC_PREEMPTED			-2	/* Not defined by the SMCCC */
+
+/* Return codes for Arm Architecture Service SMC calls */
+#define SMC_ARCH_CALL_SUCCESS		0
+#define SMC_ARCH_CALL_NOT_SUPPORTED	-1
+#define SMC_ARCH_CALL_NOT_REQUIRED	-2
+#define SMC_ARCH_CALL_INVAL_PARAM	-3
 
 /* Various flags passed to SMC handlers */
 #define SMC_FROM_SECURE		(U(0) << 0)

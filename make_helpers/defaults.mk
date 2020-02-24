@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -139,6 +139,9 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
+# Option to build TF with Measured Boot support
+MEASURED_BOOT			:= 0
+
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
@@ -171,6 +174,10 @@ SDEI_SUPPORT            	:= 0
 # platform Makefile is free to override this value.
 SEPARATE_CODE_AND_RODATA	:= 0
 
+# Put NOBITS sections (.bss, stacks, page tables, and coherent memory) in a
+# separate memory region, which may be discontiguous from the rest of BL31.
+SEPARATE_NOBITS_REGION		:= 0
+
 # If the BL31 image initialisation code is recalimed after use for the secondary
 # cores stack
 RECLAIM_INIT_CODE		:= 0
@@ -178,11 +185,8 @@ RECLAIM_INIT_CODE		:= 0
 # SPD choice
 SPD				:= none
 
-# For including the Secure Partition Manager
-ENABLE_SPM			:= 0
-
-# Use the SPM based on MM
-SPM_MM				:= 1
+# Enable the Management Mode (MM)-based Secure Partition Manager implementation
+SPM_MM				:= 0
 
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
@@ -194,8 +198,17 @@ TRUSTED_BOARD_BOOT		:= 0
 # Build option to choose whether Trusted Firmware uses Coherent memory or not.
 USE_COHERENT_MEM		:= 1
 
+# Build option to add debugfs support
+USE_DEBUGFS			:= 0
+
+# Build option to fconf based io
+USE_FCONF_BASED_IO		:= 0
+
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
+
+# Chain of trust.
+COT				:= tbbr
 
 # Use tbbr_oid.h instead of platform_oid.h
 USE_TBBR_DEFS			:= 1
@@ -239,3 +252,6 @@ SANITIZE_UB := off
 # implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
 # Default: disabled
 USE_SPINLOCK_CAS := 0
+
+# Enable Link Time Optimization
+ENABLE_LTO			:= 0

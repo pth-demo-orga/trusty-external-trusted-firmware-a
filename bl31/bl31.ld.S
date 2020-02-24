@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,11 @@ ENTRY(bl31_entrypoint)
 
 MEMORY {
     RAM (rwx): ORIGIN = BL31_BASE, LENGTH = BL31_LIMIT - BL31_BASE
+#if SEPARATE_NOBITS_REGION
+    NOBITS (rw!a): ORIGIN = BL31_NOBITS_BASE, LENGTH = BL31_NOBITS_LIMIT - BL31_NOBITS_BASE
+#else
+#define NOBITS RAM
+#endif
 }
 
 #ifdef PLAT_EXTRA_LD_SCRIPT
@@ -33,7 +38,7 @@ SECTIONS
     .text . : {
         __TEXT_START__ = .;
         *bl31_entrypoint.o(.text*)
-        *(.text*)
+        *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
@@ -41,7 +46,7 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -87,8 +92,8 @@ SECTIONS
     ro . : {
         __RO_START__ = .;
         *bl31_entrypoint.o(.text*)
-        *(.text*)
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -142,7 +147,7 @@ SECTIONS
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
 
-#if ENABLE_SPM
+#if SPM_MM
 #ifndef SPM_SHIM_EXCEPTIONS_VMA
 #define SPM_SHIM_EXCEPTIONS_VMA         RAM
 #endif
@@ -179,7 +184,7 @@ SECTIONS
      */
    .data . : {
         __DATA_START__ = .;
-        *(.data*)
+        *(SORT_BY_ALIGNMENT(.data*))
         __DATA_END__ = .;
     } >RAM
 
@@ -198,11 +203,29 @@ SECTIONS
     ASSERT(. <= BL31_PROGBITS_LIMIT, "BL31 progbits has exceeded its limit.")
 #endif
 
+#if SEPARATE_NOBITS_REGION
+    /*
+     * Define a linker symbol to mark end of the RW memory area for this
+     * image.
+     */
+    . = ALIGN(PAGE_SIZE);
+    __RW_END__ = .;
+    __BL31_END__ = .;
+
+    ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
+
+    . = BL31_NOBITS_BASE;
+    ASSERT(. == ALIGN(PAGE_SIZE),
+           "BL31 NOBITS base address is not aligned on a page boundary.")
+
+    __NOBITS_START__ = .;
+#endif
+
     stacks (NOLOAD) : {
         __STACKS_START__ = .;
         *(tzfw_normal_stacks)
         __STACKS_END__ = .;
-    } >RAM
+    } >NOBITS
 
     /*
      * The .bss section gets initialised to 0 at runtime.
@@ -211,7 +234,7 @@ SECTIONS
      */
     .bss (NOLOAD) : ALIGN(16) {
         __BSS_START__ = .;
-        *(.bss*)
+        *(SORT_BY_ALIGNMENT(.bss*))
         *(COMMON)
 #if !USE_COHERENT_MEM
         /*
@@ -262,7 +285,7 @@ SECTIONS
         __PMF_TIMESTAMP_END__ = .;
 #endif /* ENABLE_PMF */
         __BSS_END__ = .;
-    } >RAM
+    } >NOBITS
 
     /*
      * The xlat_table section is for full, aligned page tables (4K).
@@ -272,7 +295,7 @@ SECTIONS
      */
     xlat_table (NOLOAD) : {
         *(xlat_table)
-    } >RAM
+    } >NOBITS
 
 #if USE_COHERENT_MEM
     /*
@@ -298,9 +321,18 @@ SECTIONS
          */
         . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
-    } >RAM
+    } >NOBITS
 #endif
 
+#if SEPARATE_NOBITS_REGION
+    /*
+     * Define a linker symbol to mark end of the NOBITS memory area for this
+     * image.
+     */
+    __NOBITS_END__ = .;
+
+    ASSERT(. <= BL31_NOBITS_LIMIT, "BL31 NOBITS region has exceeded its limit.")
+#else
     /*
      * Define a linker symbol to mark end of the RW memory area for this
      * image.
@@ -308,5 +340,10 @@ SECTIONS
     __RW_END__ = .;
     __BL31_END__ = .;
 
+    /DISCARD/ : {
+        *(.dynsym .dynstr .hash .gnu.hash)
+    }
+
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
+#endif
 }

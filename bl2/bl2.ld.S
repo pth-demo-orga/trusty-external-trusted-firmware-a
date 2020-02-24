@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@ SECTIONS
     .text . : {
         __TEXT_START__ = .;
         *bl2_entrypoint.o(.text*)
-        *(.text*)
+        *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
@@ -44,7 +44,12 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.rodata*))
+
+       . = ALIGN(8);
+        __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+        __FCONF_POPULATOR_END__ = .;
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -59,8 +64,13 @@ SECTIONS
     ro . : {
         __RO_START__ = .;
         *bl2_entrypoint.o(.text*)
-        *(.text*)
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(.rodata*))
+
+	. = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+         KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -93,7 +103,7 @@ SECTIONS
      */
     .data . : {
         __DATA_START__ = .;
-        *(.data*)
+        *(SORT_BY_ALIGNMENT(.data*))
         __DATA_END__ = .;
     } >RAM
 

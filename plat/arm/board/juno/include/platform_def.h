@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,9 +60,11 @@
 #if USE_ROMLIB
 #define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0x1000)
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0xe000)
+#define JUNO_BL2_ROMLIB_OPTIMIZATION UL(0x8000)
 #else
 #define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0)
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0)
+#define JUNO_BL2_ROMLIB_OPTIMIZATION UL(0)
 #endif
 
 /*
@@ -127,14 +129,14 @@
  */
 #if TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
-# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1F000)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1F000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #elif TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA
-# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1D000)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1D000)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #endif
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		UL(0xF000)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0xF000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #endif
 
 /*
@@ -222,7 +224,6 @@
 
 /* MHU related constants */
 #define PLAT_CSS_MHU_BASE		UL(0x2b1f0000)
-#define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /*
  * Base address of the first memory region used for communication between AP
@@ -298,5 +299,8 @@
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 #endif
+
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT	U(1)
 
 #endif /* PLATFORM_DEF_H */
