@@ -56,7 +56,7 @@ static void security_setup(void)
 static int spd_add_dt_node(void *fdt)
 {
 	int offs, trusty_offs, root_offs;
-	int gic, ipi;
+	int gic;
 	int len;
 	const uint32_t *prop;
 
@@ -83,27 +83,6 @@ static int spd_add_dt_node(void *fdt)
 		return -1;
 	root_offs = offs;
 
-	offs = fdt_add_subnode(fdt, offs, "interrupt-controller");
-	if (offs < 0)
-		return -1;
-	ipi = fdt_get_max_phandle(fdt) + 1;
-	if (fdt_setprop_u32(fdt, offs, "phandle", 1))
-		return -1;
-	INFO("Found ipi phandle 0x%x\n", ipi);
-
-	ipi = fdt_get_phandle(fdt, offs);
-	if (!ipi) {
-		WARN("Failed to get ipi phandle\n");
-		return -1;
-	}
-
-	if (fdt_appendprop_string(fdt, offs, "compatible", "android,CustomIPI"))
-		return -1;
-	if (fdt_setprop_u32(fdt, offs, "#interrupt-cells", 1))
-		return -1;
-	if (fdt_setprop_u32(fdt, offs, "interrupt-controller", 0))
-		return -1;
-
 	offs = fdt_add_subnode(fdt, root_offs, "trusty");
 	if (offs < 0)
 		return -1;
@@ -123,10 +102,6 @@ static int spd_add_dt_node(void *fdt)
 		return -1;
 	if (fdt_appendprop_string(fdt, offs, "compatible", "android,trusty-irq-v1"))
 		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", ipi))
-		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 0))
-		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", gic))
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 1))
@@ -144,23 +119,24 @@ static int spd_add_dt_node(void *fdt)
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-templates", 4))
 		return -1;
 
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 0))
-		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 15))
-		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 0))
-		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 16))
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 31))
 		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 1))
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 0))
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 32))
 		return -1;
 	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 63))
 		return -1;
-	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 2))
+	if (fdt_appendprop_u32(fdt, offs, "interrupt-ranges", 1))
+		return -1;
+
+	if (fdt_appendprop_u32(fdt, offs, "ipi-range", 8))  /* beg */
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "ipi-range", 15)) /* end */
+		return -1;
+	if (fdt_appendprop_u32(fdt, offs, "ipi-range", 8))  /* ipi_base */
 		return -1;
 
 	offs = fdt_add_subnode(fdt, trusty_offs, "log");
