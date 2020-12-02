@@ -11,6 +11,11 @@
 #include <lib/utils_def.h>
 
 /*******************************************************************************
+ * Platform BL31 specific defines.
+ ******************************************************************************/
+#define BL31_SIZE			U(0x40000)
+
+/*******************************************************************************
  * Power down state IDs
  ******************************************************************************/
 #define PSTATE_ID_CORE_POWERDN		U(7)
@@ -42,6 +47,11 @@
  * SC7 entry firmware's header size
  ******************************************************************************/
 #define SC7ENTRY_FW_HEADER_SIZE_BYTES	U(0x400)
+
+/*******************************************************************************
+ * Counter-timer physical secure timer PPI
+ ******************************************************************************/
+#define TEGRA210_TIMER1_IRQ		32
 
 /*******************************************************************************
  * iRAM memory constants
@@ -144,6 +154,9 @@
 #define  SE_CLK_ENB_BIT			(U(1) << 31)
 #define TEGRA_CLK_OUT_ENB_W		U(0x364)
 #define  ENTROPY_RESET_BIT 		(U(1) << 21)
+#define TEGRA_CLK_RST_CTL_CLK_SRC_SE	U(0x42C)
+#define  SE_CLK_SRC_MASK		(U(7) << 29)
+#define  SE_CLK_SRC_CLK_M		(U(6) << 29)
 #define TEGRA_RST_DEV_SET_V		U(0x430)
 #define  SE_RESET_BIT			(U(1) << 31)
 #define  HDA_RESET_BIT			(U(1) << 29)
@@ -232,6 +245,8 @@
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)
 #define MC_VIDEO_PROTECT_BASE_LO	U(0x648)
 #define MC_VIDEO_PROTECT_SIZE_MB	U(0x64c)
+#define MC_VIDEO_PROTECT_REG_CTRL	U(0x650)
+#define MC_VIDEO_PROTECT_WRITE_ACCESS_ENABLED	U(3)
 
 /* SMMU configuration registers*/
 #define MC_SMMU_PPCS_ASID_0		0x270U

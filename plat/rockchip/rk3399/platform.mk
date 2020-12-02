@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,11 +24,10 @@ PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/			\
 				-I${RK_PLAT_SOC}/include/		\
 				-I${RK_PLAT_SOC}/include/shared/	\
 
-RK_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v3/arm_gicv3_common.c	\
-				drivers/arm/gic/v3/gic500.c		\
-				drivers/arm/gic/v3/gicv3_main.c		\
-				drivers/arm/gic/v3/gicv3_helpers.c	\
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+RK_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
 				${RK_PLAT}/common/rockchip_gicv3.c
 

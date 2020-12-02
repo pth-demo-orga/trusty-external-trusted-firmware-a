@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# GIC-600 configuration
+GICV3_IMPL_GIC600_MULTICHIP	:=	1
+
 include plat/arm/css/sgi/sgi-common.mk
 
 RDN1EDGE_BASE		=	plat/arm/board/rdn1edge
@@ -26,7 +29,6 @@ BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_plat.c	\
 				${RDN1EDGE_BASE}/rdn1edge_topology.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
-				drivers/arm/gic/v3/gic600_multichip.c	\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
@@ -36,20 +38,24 @@ BL2_SOURCES		+=	${RDN1EDGE_BASE}/rdn1edge_trusted_boot.c
 endif
 
 # Enable dynamic addition of MMAP regions in BL31
-BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+BL31_CPPFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC
 
 # Add the FDT_SOURCES and options for Dynamic Config
-FDT_SOURCES		+=	${RDN1EDGE_BASE}/fdts/${PLAT}_fw_config.dts
-TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+FDT_SOURCES		+=	${RDN1EDGE_BASE}/fdts/${PLAT}_fw_config.dts	\
+				${RDN1EDGE_BASE}/fdts/${PLAT}_tb_fw_config.dts
+FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
 
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config))
+$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
 FDT_SOURCES		+=	${RDN1EDGE_BASE}/fdts/${PLAT}_nt_fw_config.dts
 NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
+$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
 $(eval $(call CREATE_SEQ,SEQ,2))
 ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))

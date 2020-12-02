@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -38,8 +38,8 @@
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	7
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		8
-#  define MAX_XLAT_TABLES		8
+#  define PLAT_ARM_MMAP_ENTRIES		(5 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(6 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
@@ -56,7 +56,7 @@
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
  */
-#define PLAT_ARM_MAX_BL1_RW_SIZE	0xB000
+#define PLAT_ARM_MAX_BL1_RW_SIZE	0xC000
 
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
@@ -77,7 +77,7 @@
 #if TRUSTED_BOARD_BOOT
 # define PLAT_ARM_MAX_BL2_SIZE		0x1D000
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0x11000
+# define PLAT_ARM_MAX_BL2_SIZE		0x14000
 #endif
 
 /*
@@ -123,6 +123,9 @@
 #define PLAT_ARM_NSRAM_BASE		0x06000000
 #define PLAT_ARM_NSRAM_SIZE		0x00080000	/* 512KB */
 
+#define PLAT_ARM_DRAM2_BASE		ULL(0x8080000000)
+#define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
+
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_IRQ_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 
@@ -138,7 +141,7 @@
 				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
 				ARM_SHARED_RAM_BASE,				\
 				ARM_SHARED_RAM_SIZE,				\
-				MT_MEMORY | MT_RW | MT_SECURE			\
+				MT_NON_CACHEABLE | MT_RW | MT_SECURE		\
 			)
 
 #define CSS_SGI_MAP_DEVICE_REMOTE_CHIP(n)					\

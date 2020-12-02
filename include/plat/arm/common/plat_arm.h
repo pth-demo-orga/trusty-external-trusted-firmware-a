@@ -148,11 +148,13 @@ void arm_setup_romlib(void);
 #define ARM_ROTPK_DEVEL_RSA_ID		2
 #define ARM_ROTPK_DEVEL_ECDSA_ID	3
 
+
 /* IO storage utility functions */
 int arm_io_setup(void);
 
 /* Security utility functions */
-void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions);
+void arm_tzc400_setup(uintptr_t tzc_base,
+			const arm_tzc_regions_info_t *tzc_regions);
 struct tzc_dmc500_driver_data;
 void arm_tzc_dmc500_setup(struct tzc_dmc500_driver_data *plat_driver_data,
 			const arm_tzc_regions_info_t *tzc_regions);
@@ -188,7 +190,7 @@ void arm_bl1_platform_setup(void);
 void arm_bl1_plat_arch_setup(void);
 
 /* BL2 utility functions */
-void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, struct meminfo *mem_layout);
+void arm_bl2_early_platform_setup(uintptr_t fw_config, struct meminfo *mem_layout);
 void arm_bl2_platform_setup(void);
 void arm_bl2_plat_arch_setup(void);
 uint32_t arm_get_spsr_for_bl32_entry(void);
@@ -221,6 +223,7 @@ void arm_tsp_early_platform_setup(void);
 void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 				uintptr_t hw_config, void *plat_params_from_bl2);
 void arm_sp_min_plat_runtime_setup(void);
+void arm_sp_min_plat_arch_setup(void);
 
 /* FIP TOC validity check */
 bool arm_io_is_toc_valid(void);
@@ -230,11 +233,33 @@ void arm_bl2_dyn_cfg_init(void);
 void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
+#if MEASURED_BOOT
+/* Measured boot related functions */
+void arm_bl1_set_bl2_hash(const image_desc_t *image_desc);
+void arm_bl2_get_hash(void *data);
+int arm_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
+			size_t log_size);
+int arm_set_nt_fw_info(uintptr_t config_base,
+/*
+ * Currently OP-TEE does not support reading DTBs from Secure memory
+ * and this option should be removed when feature is supported.
+ */
+#ifdef SPD_opteed
+			uintptr_t log_addr,
+#endif
+			size_t log_size, uintptr_t *ns_log_addr);
+#endif /* MEASURED_BOOT */
+
 /*
  * Free the memory storing initialization code only used during an images boot
  * time so it can be reclaimed for runtime data
  */
 void arm_free_init_memory(void);
+
+/*
+ * Make the higher level translation tables read-only
+ */
+void arm_xlat_make_tables_readonly(void);
 
 /*
  * Mandatory functions required in ARM standard platforms
@@ -262,7 +287,7 @@ __dead2 void plat_arm_error_handler(int err);
  * Optional functions in ARM standard platforms
  */
 void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames);
-int arm_get_rotpk_info(void **key_ptr, unsigned int *key_len,
+int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	unsigned int *flags);
 int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
 	unsigned int *flags);
@@ -315,5 +340,8 @@ extern const unsigned int arm_pm_idle_states[];
 /* secure watchdog */
 void plat_arm_secure_wdt_start(void);
 void plat_arm_secure_wdt_stop(void);
+
+/* Get SOC-ID of ARM platform */
+uint32_t plat_arm_get_soc_id(void);
 
 #endif /* PLAT_ARM_H */

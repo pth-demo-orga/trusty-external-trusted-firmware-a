@@ -21,8 +21,8 @@
 
 #include "uniphier.h"
 
-#define UNIPHIER_IMAGE_BUF_OFFSET	0x04300000UL
-#define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
+#define UNIPHIER_IMAGE_BUF_OFFSET	0x03800000UL
+#define UNIPHIER_IMAGE_BUF_SIZE		0x00800000UL
 
 static uintptr_t uniphier_mem_base = UNIPHIER_MEM_BASE;
 static unsigned int uniphier_soc = UNIPHIER_SOC_UNKNOWN;
@@ -44,7 +44,6 @@ void bl2_el3_plat_arch_setup(void)
 	int ret;
 
 	uniphier_mmap_setup(uniphier_soc);
-	enable_mmu_el3(0);
 
 	/* add relocation offset (run-time-address - link-address) */
 	uniphier_mem_base += BL_CODE_BASE - BL2_BASE;

@@ -21,6 +21,8 @@
 static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
 	MAP_REGION_FLAT(SUNXI_SRAM_BASE, SUNXI_SRAM_SIZE,
 			MT_RW_DATA | MT_SECURE),
+	MAP_REGION_FLAT(SUNXI_SCP_BASE, SUNXI_SCP_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
 	MAP_REGION_FLAT(SUNXI_DEV_BASE, SUNXI_DEV_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
 	MAP_REGION(SUNXI_DRAM_BASE, SUNXI_DRAM_VIRT_BASE, SUNXI_DRAM_SEC_SIZE,
@@ -175,7 +177,7 @@ DEFINE_BAKERY_LOCK(arisc_lock);
  */
 void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param)
 {
-	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE - 0x4000 + 0x100;
+	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE + 0x100;
 
 	do {
 		bakery_lock_get(&arisc_lock);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -183,23 +183,23 @@
 
 /* CPACR definitions */
 #define CPACR_FPEN(x)		((x) << 20)
-#define CPACR_FP_TRAP_PL0	U(0x1)
-#define CPACR_FP_TRAP_ALL	U(0x2)
-#define CPACR_FP_TRAP_NONE	U(0x3)
+#define CPACR_FP_TRAP_PL0	UL(0x1)
+#define CPACR_FP_TRAP_ALL	UL(0x2)
+#define CPACR_FP_TRAP_NONE	UL(0x3)
 
 /* SCR definitions */
-#define SCR_TWE_BIT		(U(1) << 13)
-#define SCR_TWI_BIT		(U(1) << 12)
-#define SCR_SIF_BIT		(U(1) << 9)
-#define SCR_HCE_BIT		(U(1) << 8)
-#define SCR_SCD_BIT		(U(1) << 7)
-#define SCR_NET_BIT		(U(1) << 6)
-#define SCR_AW_BIT		(U(1) << 5)
-#define SCR_FW_BIT		(U(1) << 4)
-#define SCR_EA_BIT		(U(1) << 3)
-#define SCR_FIQ_BIT		(U(1) << 2)
-#define SCR_IRQ_BIT		(U(1) << 1)
-#define SCR_NS_BIT		(U(1) << 0)
+#define SCR_TWE_BIT		(UL(1) << 13)
+#define SCR_TWI_BIT		(UL(1) << 12)
+#define SCR_SIF_BIT		(UL(1) << 9)
+#define SCR_HCE_BIT		(UL(1) << 8)
+#define SCR_SCD_BIT		(UL(1) << 7)
+#define SCR_NET_BIT		(UL(1) << 6)
+#define SCR_AW_BIT		(UL(1) << 5)
+#define SCR_FW_BIT		(UL(1) << 4)
+#define SCR_EA_BIT		(UL(1) << 3)
+#define SCR_FIQ_BIT		(UL(1) << 2)
+#define SCR_IRQ_BIT		(UL(1) << 1)
+#define SCR_NS_BIT		(UL(1) << 0)
 #define SCR_VALID_BIT_MASK	U(0x33ff)
 #define SCR_RESET_VAL		U(0x0)
 
@@ -388,13 +388,17 @@
 
 #define GET_M32(mode)		(((mode) >> MODE32_SHIFT) & MODE32_MASK)
 
-#define SPSR_MODE32(mode, isa, endian, aif)		\
-	((MODE_RW_32 << MODE_RW_SHIFT |			\
-	((mode) & MODE32_MASK) << MODE32_SHIFT |	\
-	((isa) & SPSR_T_MASK) << SPSR_T_SHIFT |		\
-	((endian) & SPSR_E_MASK) << SPSR_E_SHIFT |	\
-	((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT) &	\
-	(~(SPSR_SSBS_BIT)))
+#define SPSR_MODE32(mode, isa, endian, aif) \
+( \
+	( \
+		(MODE_RW_32 << MODE_RW_SHIFT) | \
+		(((mode) & MODE32_MASK) << MODE32_SHIFT) | \
+		(((isa) & SPSR_T_MASK) << SPSR_T_SHIFT) | \
+		(((endian) & SPSR_E_MASK) << SPSR_E_SHIFT) | \
+		(((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT) \
+	) & \
+	(~(SPSR_SSBS_BIT)) \
+)
 
 /*
  * TTBR definitions
@@ -696,5 +700,25 @@
 #define AMEVTYPER1D	p15, 0, c13, c15, 5
 #define AMEVTYPER1E	p15, 0, c13, c15, 6
 #define AMEVTYPER1F	p15, 0, c13, c15, 7
+
+/* AMCFGR definitions */
+#define AMCFGR_NCG_SHIFT	U(28)
+#define AMCFGR_NCG_MASK		U(0xf)
+#define AMCFGR_N_SHIFT		U(0)
+#define AMCFGR_N_MASK		U(0xff)
+
+/* AMCGCR definitions */
+#define AMCGCR_CG1NC_SHIFT	U(8)
+#define AMCGCR_CG1NC_MASK	U(0xff)
+
+/*******************************************************************************
+ * Definitions for DynamicIQ Shared Unit registers
+ ******************************************************************************/
+#define CLUSTERPWRDN	p15, 0, c15, c3, 6
+
+/* CLUSTERPWRDN register definitions */
+#define DSU_CLUSTER_PWR_OFF	0
+#define DSU_CLUSTER_PWR_ON	1
+#define DSU_CLUSTER_PWR_MASK	U(1)
 
 #endif /* ARCH_H */

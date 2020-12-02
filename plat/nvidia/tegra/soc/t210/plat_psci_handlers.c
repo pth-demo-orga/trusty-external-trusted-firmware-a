@@ -210,12 +210,9 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		assert((stateid_afflvl1 == PLAT_MAX_OFF_STATE) ||
 			(stateid_afflvl1 == PSTATE_ID_SOC_POWERDN));
 
-		if (tegra_chipid_is_t210_b01()) {
-
-			/* Suspend se/se2 and pka1 */
-			if (tegra_se_suspend() != 0) {
-				ret = PSCI_E_INTERN_FAIL;
-			}
+		/* Suspend se/se2 and pka1 for T210 B01 and se for T210 */
+		if (tegra_se_suspend() != 0) {
+			ret = PSCI_E_INTERN_FAIL;
 		}
 
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_IDLE) {
@@ -537,6 +534,13 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	}
 
 	/*
+	 * Mark this CPU as ON in the cpu_powergate_mask[],
+	 * so that we use Flow Controller for all subsequent
+	 * power ups.
+	 */
+	cpu_powergate_mask[plat_my_core_pos()] = 1;
+
+	/*
 	 * T210 has a dedicated ARMv7 boot and power mgmt processor, BPMP. It's
 	 * used for power management and boot purposes. Inform the BPMP that
 	 * we have completed the cluster power up.
@@ -564,7 +568,6 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	/* Turn on CPU using flow controller or PMC */
 	if (cpu_powergate_mask[cpu] == 0) {
 		tegra_pmc_cpu_on(cpu);
-		cpu_powergate_mask[cpu] = 1;
 	} else {
 		tegra_fc_cpu_on(cpu);
 	}
