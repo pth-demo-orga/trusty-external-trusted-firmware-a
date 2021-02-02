@@ -315,8 +315,6 @@ static long trusty_ffa_fill_desc(struct trusty_shmem_client_state *client,
 			 obj->desc.sender_id << 16, 0, 0, 0);
 	}
 
-	obj->desc.memory_region_attributes |= FFA_MEM_ATTR_NONSECURE;
-
 	SMC_RET8(smc_handle, SMC_FC_FFA_SUCCESS, 0, handle_low, handle_high, 0,
 		 0, 0, 0);
 
@@ -881,8 +879,7 @@ static int trusty_ffa_features(struct trusty_shmem_client_state *client,
 		 * had been retrieved in a variable of type size_t.
 		 */
 		*ret3 = sizeof(size_t) * 8 - 1;
-		*ret2 = FFA_FEATURES2_MEM_HAS_NS_BIT;
-		return 0;
+		__attribute__((fallthrough));
 
 	case SMC_FC_FFA_MEM_SHARE:
 	case SMC_FC64_FFA_MEM_SHARE:
