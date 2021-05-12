@@ -215,6 +215,47 @@ static int spd_add_dt_node(void *fdt)
 
 #endif
 
+static int qemu_dt_fixup_securemem(void *fdt)
+{
+	/*
+	 * QEMU adds a device tree node for secure memory. Linux fails to ignore
+	 * it and will crash when it allocates memory out of this secure memory
+	 * region. We currently don't use this node for anything, remove it.
+	 */
+
+	int offs;
+	const char *prop;
+	const char memory_device_type[] = "memory";
+
+	offs = -1;
+	while (true) {
+		offs = fdt_node_offset_by_prop_value(fdt, offs, "device_type",
+		                                     memory_device_type,
+		                                     sizeof(memory_device_type)
+		                                     );
+		if (offs < 0)
+			break;
+
+		prop = fdt_getprop(fdt, offs, "status", NULL);
+		if (prop == NULL)
+			continue;
+		if ((strcmp(prop, "disabled") != 0))
+			continue;
+		prop = fdt_getprop(fdt, offs, "secure-status", NULL);
+		if (prop == NULL)
+			continue;
+		if ((strcmp(prop, "okay") != 0))
+			continue;
+
+		if (fdt_del_node(fdt, offs)) {
+			return -1;
+		}
+		INFO("Removed secure memory node\n");
+	}
+
+	return 0;
+}
+
 static void update_dt(void)
 {
 	int ret;
@@ -223,6 +264,11 @@ static void update_dt(void)
 	ret = fdt_open_into(fdt, fdt, PLAT_QEMU_DT_MAX_SIZE);
 	if (ret < 0) {
 		ERROR("Invalid Device Tree at %p: error %d\n", fdt, ret);
+		return;
+	}
+
+	if (qemu_dt_fixup_securemem(fdt)) {
+		ERROR("Failed to fixup secure-mem Device Tree node\n");
 		return;
 	}
 
