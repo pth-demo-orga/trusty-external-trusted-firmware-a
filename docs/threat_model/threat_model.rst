@@ -1,13 +1,15 @@
-*****************
-Introduction
-*****************
-Threat modeling is an important part of Secure Development Lifecycle (SDL)
-that helps us identify potential threats and mitigations affecting a system.
+Generic threat model
+********************
 
-This document provides a generic threat model for TF-A firmware. In the
-next sections, we first give a description of the target of evaluation
-using a data flow diagram. Then we provide a list of threats we have
-identified based on the data flow diagram and potential threat mitigations.
+************************
+Introduction
+************************
+This document provides a generic threat model for TF-A firmware.
+
+.. note::
+
+ This threat model doesn't consider Root and Realm worlds introduced by
+ :ref:`Realm Management Extension (RME)`.
 
 ************************
 Target of Evaluation
@@ -25,8 +27,10 @@ assumptions:
 - All TF-A images are run from either ROM or on-chip trusted SRAM. This means
   TF-A is not vulnerable to an attacker that can probe or tamper with off-chip
   memory.
+
 - Trusted boot is enabled. This means an attacker can't boot arbitrary images
   that are not approved by platform providers.
+
 - There is no Secure-EL2. We don't consider threats that may come with
   Secure-EL2 software.
 
