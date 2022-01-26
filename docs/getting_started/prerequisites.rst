@@ -26,7 +26,7 @@ Toolchain
 |TF-A| can be built with any of the following *cross-compiler* toolchains that
 target the Armv7-A or Armv8-A architectures:
 
-- GCC >= 9.2-2019.12 (from the `Arm Developer website`_)
+- GCC >= 10.3-2021.07 (from the `Arm Developer website`_)
 - Clang >= 4.0
 - Arm Compiler >= 6.0
 
@@ -75,7 +75,7 @@ These tools are optional:
    The standard software package used for debugging software on Arm development
    platforms and |FVP| models.
 
-- Node.js >= 14
+- Node.js >= 16
 
    Highly recommended, and necessary in order to install and use the packaged
    Git hooks and helper tools. Without these tools you will need to rely on the
@@ -98,13 +98,13 @@ The optional packages can be installed using:
     sudo apt install device-tree-compiler
 
 Additionally, to install an up-to-date version of Node.js, you can use the `Node
-Version Manager`_ to install a version of your choosing (we recommend 14, but
+Version Manager`_ to install a version of your choosing (we recommend 16, but
 later LTS versions might offer a more stable experience):
 
 .. code:: shell
 
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | "$SHELL"
-    exec "$SHELL" -ic "nvm install 14; exec $SHELL"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | "$SHELL"
+    exec "$SHELL" -ic "nvm install 16; exec $SHELL"
 
 .. _Node Version Manager: https://github.com/nvm-sh/nvm#install--update-script
 
@@ -112,7 +112,7 @@ Supporting Files
 ----------------
 
 TF-A has been tested with pre-built binaries and file systems from `Linaro
-Release 19.06`_. Alternatively, you can build the binaries from source using
+Release 20.01`_. Alternatively, you can build the binaries from source using
 instructions in :ref:`Performing an Initial Build`.
 
 .. _prerequisites_get_source:
@@ -166,4 +166,4 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 .. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
 .. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
 .. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
-.. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06
+.. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
